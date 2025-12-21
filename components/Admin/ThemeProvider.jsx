@@ -2,9 +2,9 @@
 
 import { ThemeProvider as MUIThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
-import theme from '@/theme/theme'
+import theme from '@/lib/theme/theme'
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({ children }) {
   return (
     <MUIThemeProvider theme={theme}>
       <CssBaseline />

@@ -4,9 +4,10 @@ import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typogr
 import { People, PersonAdd, Settings } from '@mui/icons-material'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import Image from 'next/image'
 
 const menuItems = [
-  { text: 'List Users', icon: People, path: '/' },
+  { text: 'Users', icon: People, path: '/users' },
   { text: 'Pending Account', icon: PersonAdd, path: '/pending' },
   { text: 'My Profile', icon: Settings, path: '/profile' },
 ]
@@ -19,8 +20,9 @@ export function Sidebar() {
       sx={{
         width: 280,
         height: '100vh',
-        bgcolor: '#FFFFFF',
-        borderRight: '1px solid #E0E0E0',
+        bgcolor: 'background.paper',
+        borderRight: '1px solid',
+        borderColor: 'divider',
         display: 'flex',
         flexDirection: 'column',
         position: 'fixed',
@@ -28,34 +30,21 @@ export function Sidebar() {
         top: 0,
       }}
     >
-      {/* Logo */}
       <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <Box
-          sx={{
-            width: 40,
-            height: 40,
-            bgcolor: '#F5C842',
-            borderRadius: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Typography variant="h6" sx={{ color: '#8B4513', fontWeight: 'bold' }}>
-            N
-          </Typography>
-        </Box>
-        <Typography variant="h5" sx={{ color: '#8B4513', fontWeight: 'bold' }}>
-          NENS
-        </Typography>
+        <Image
+          src="/assets/logo.png"
+          alt="Logo"
+          width={150}
+          height={40}
+          style={{ objectFit: 'contain' }}
+        />
       </Box>
 
-      {/* Main Menu */}
       <Box sx={{ px: 3, mb: 2 }}>
         <Typography
           variant="caption"
           sx={{
-            color: '#666',
+            color: 'text.secondary',
             textTransform: 'uppercase',
             fontWeight: 600,
             letterSpacing: 1,
@@ -77,16 +66,16 @@ export function Sidebar() {
                 href={item.path}
                 sx={{
                   borderRadius: 2,
-                  bgcolor: isActive ? '#FFF9E6' : 'transparent',
+                  bgcolor: isActive ? 'warning.light' : 'transparent',
                   '&:hover': {
-                    bgcolor: isActive ? '#FFF9E6' : '#F5F5F5',
+                    bgcolor: isActive ? 'warning.light' : 'action.hover',
                   },
                 }}
               >
                 <ListItemIcon
                   sx={{
                     minWidth: 40,
-                    color: isActive ? '#F5C842' : '#999',
+                    color: isActive ? 'secondary.main' : 'text.secondary',
                   }}
                 >
                   <Icon />
@@ -95,7 +84,7 @@ export function Sidebar() {
                   primary={item.text}
                   primaryTypographyProps={{
                     sx: {
-                      color: '#8B4513',
+                      color: 'primary.main',
                       fontWeight: isActive ? 600 : 400,
                     },
                   }}
