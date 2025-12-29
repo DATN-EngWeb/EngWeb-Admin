@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import {
   Box,
   Typography,
@@ -8,19 +9,112 @@ import {
   Paper,
   Grid,
   TextField,
+  CircularProgress,
+  Alert,
+  Snackbar,
 } from '@mui/material'
 import { Edit, Person } from '@mui/icons-material'
 import { Sidebar } from '@/components/Admin/Sidebar'
 import { Header } from '@/components/Admin/Header'
 import { profileStyles as styles } from '@/styles/Profile/ProfileStyles'
+import { getCurrentUser, updateUser, ROLE_MAP } from '@/lib/api'
 
 export default function ProfilePage() {
+  const [profile, setProfile] = useState({
+    id: null,
+    full_name: '',
+    email: '',
+    phone_number: '',
+    role: '',
+    bio: '',
+  })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [saving, setSaving] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
+  const [formData, setFormData] = useState({
+    full_name: '',
+    phone_number: '',
+    bio: '',
+  })
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const data = await getCurrentUser()
+        setProfile(data)
+        setFormData({
+          full_name: data.full_name || '',
+          phone_number: data.phone_number || '',
+          bio: data.bio || '',
+        })
+      } catch (err) {
+        console.error('Failed to fetch profile:', err)
+        setError('Failed to load profile. Please make sure the backend is running.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProfile()
+  }, [])
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    setError(null)
+    try {
+      const updatedData = await updateUser(profile.id, formData)
+      setProfile(updatedData)
+      setSuccessMessage('Profile updated successfully!')
+    } catch (err) {
+      console.error('Failed to update profile:', err)
+      setError('Failed to update profile. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const getInitials = (name) => {
+    if (!name) return '??'
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  }
+
+  if (loading) {
+    return (
+      <Box sx={styles.container}>
+        <Sidebar />
+        <Box sx={styles.mainContent}>
+          <Header />
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+            <CircularProgress />
+          </Box>
+        </Box>
+      </Box>
+    )
+  }
+
   return (
     <Box sx={styles.container}>
       <Sidebar />
       <Box sx={styles.mainContent}>
         <Header />
         <Box sx={styles.contentWrapper}>
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+
           <Paper sx={styles.profileCard}>
             <Box sx={styles.banner}>
               <Button sx={styles.editButton}>
@@ -30,13 +124,13 @@ export default function ProfilePage() {
 
             <Box sx={styles.avatarBox}>
               <Avatar sx={styles.avatar}>
-                <Person sx={styles.personIcon} />
+                {getInitials(profile.full_name)}
               </Avatar>
               <Typography variant="h5" sx={styles.userName}>
-                Sarah Wilson
+                {profile.full_name || 'No Name'}
               </Typography>
               <Typography variant="body2" sx={styles.userEmail}>
-                sarah.wilson@example.com
+                {profile.email}
               </Typography>
             </Box>
 
@@ -45,8 +139,13 @@ export default function ProfilePage() {
                 <Typography variant="h6" sx={styles.sectionTitle}>
                   Profile Setting
                 </Typography>
-                <Button startIcon={<Edit />} sx={styles.saveButton}>
-                  Save
+                <Button
+                  startIcon={<Edit />}
+                  sx={styles.saveButton}
+                  onClick={handleSave}
+                  disabled={saving}
+                >
+                  {saving ? 'Saving...' : 'Save'}
                 </Button>
               </Box>
 
@@ -57,7 +156,9 @@ export default function ProfilePage() {
                   </Typography>
                   <TextField
                     fullWidth
-                    defaultValue="Sarah Wilson"
+                    name="full_name"
+                    value={formData.full_name}
+                    onChange={handleInputChange}
                     sx={styles.textField}
                   />
                 </Grid>
@@ -67,7 +168,8 @@ export default function ProfilePage() {
                   </Typography>
                   <TextField
                     fullWidth
-                    defaultValue="sarah.wilson@example.com"
+                    value={profile.email}
+                    disabled
                     sx={styles.textField}
                   />
                 </Grid>
@@ -77,7 +179,9 @@ export default function ProfilePage() {
                   </Typography>
                   <TextField
                     fullWidth
-                    defaultValue="+1 234 567 8900"
+                    name="phone_number"
+                    value={formData.phone_number}
+                    onChange={handleInputChange}
                     sx={styles.textField}
                   />
                 </Grid>
@@ -87,7 +191,7 @@ export default function ProfilePage() {
                   </Typography>
                   <TextField
                     fullWidth
-                    defaultValue="Admin"
+                    value={ROLE_MAP[profile.role] || profile.role}
                     disabled
                     sx={styles.textField}
                   />
@@ -100,7 +204,9 @@ export default function ProfilePage() {
                     fullWidth
                     multiline
                     rows={4}
-                    defaultValue="Experienced administrator with a passion for education technology."
+                    name="bio"
+                    value={formData.bio}
+                    onChange={handleInputChange}
                     sx={styles.textField}
                   />
                 </Grid>
@@ -156,6 +262,17 @@ export default function ProfilePage() {
           </Paper>
         </Box>
       </Box>
+
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={3000}
+        onClose={() => setSuccessMessage('')}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert severity="success" onClose={() => setSuccessMessage('')}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   )
 }
