@@ -129,6 +129,7 @@ export async function apiFetch(url: string, options: ApiFetchOptions = {}) {
     } catch (err) {
       accessToken = null;
       localStorage.removeItem("isAuthenticated");
+      document.cookie = "isAuthenticated=; path=/; max-age=0; samesite=lax";
       window.location.href = "/login";
       throw err;
     }

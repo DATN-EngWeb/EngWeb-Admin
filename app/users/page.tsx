@@ -52,11 +52,11 @@ const getStatusColor = (status: string) => {
 const getRoleStyle = (role) => {
   switch (role) {
     case "T":
-      return { bg: "warning.light" };
+      return { bg: "warning.main" };
     case "S":
-      return { bg: "info.light" };
+      return { bg: "info.main" };
     case "A":
-      return { bg: "error.light" };
+      return { bg: "error.main" };
     default:
       return { bg: "grey.200" };
   }
@@ -79,11 +79,13 @@ const getStatusActions = (status) => {
 };
 
 const PAGE_SIZE = 10;
+const DEBOUNCE_DELAY = 800;
 
 export default function Home() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
@@ -96,6 +98,15 @@ export default function Home() {
   });
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setCurrentPage(1);
+    }, DEBOUNCE_DELAY);
+
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
 
   const open = Boolean(anchorEl);
 
@@ -140,7 +151,7 @@ export default function Home() {
       }
 
       const response = (await getUsers({
-        search: searchQuery || undefined,
+        search: debouncedSearchQuery || undefined,
         role: roleCode,
         status: statusCode,
         page: currentPage,
@@ -158,7 +169,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, roleFilter, statusFilter, currentPage]);
+  }, [debouncedSearchQuery, roleFilter, statusFilter, currentPage]);
 
   useEffect(() => {
     fetchUsers();
@@ -282,7 +293,7 @@ export default function Home() {
             </Box>
           </Box>
 
-          {loading && (
+          {(loading || actionLoadingId !== null) && (
             <Box sx={styles.loadingBox}>
               <CircularProgress sx={styles.loadingSpinner} />
             </Box>

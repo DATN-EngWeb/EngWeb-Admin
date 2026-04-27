@@ -4,6 +4,7 @@ import {
   Alert,
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -44,6 +45,32 @@ export default function ChangePasswordDialog({
           <Alert severity="error" sx={{ mb: 2 }}>
             {serverError}
           </Alert>
+        )}
+
+        {step === 1 && (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 2,
+              py: 3,
+            }}
+          >
+            {isLoading ? (
+              <>
+                <CircularProgress size={28} />
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  Sending OTP to your email...
+                </Typography>
+              </>
+            ) : (
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Preparing password change request...
+              </Typography>
+            )}
+          </Box>
         )}
 
         {step === 2 && (
