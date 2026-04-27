@@ -32,6 +32,7 @@ import { Teacher, SnackbarState } from "@/lib/types/users";
 import { formatDateVN } from "@/lib/utils/users";
 
 const PAGE_SIZE = 10;
+const DEBOUNCE_DELAY = 800;
 
 export default function PendingPage() {
   const [users, setUsers] = useState<Teacher[]>([]);
@@ -42,16 +43,26 @@ export default function PendingPage() {
     severity: "success",
   });
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setCurrentPage(1);
+    }, DEBOUNCE_DELAY);
+
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
 
   useEffect(() => {
     const fetchPendingUsers = async () => {
       setLoading(true);
       try {
         const response = (await getUsers({
-          search: searchQuery || undefined,
+          search: debouncedSearchQuery || undefined,
           page: currentPage,
           page_size: PAGE_SIZE,
           role: "T",
@@ -72,7 +83,7 @@ export default function PendingPage() {
     };
 
     fetchPendingUsers();
-  }, [searchQuery, currentPage]);
+  }, [debouncedSearchQuery, currentPage]);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
   const startIndex = (currentPage - 1) * PAGE_SIZE;

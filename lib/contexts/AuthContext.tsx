@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem("userId");
       document.cookie = "isAuthenticated=; path=/; max-age=0; samesite=lax";
     }
-    router.replace("/login");
+    window.location.replace("/login");
   };
 
   return (
