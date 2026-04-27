@@ -58,6 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const authStatus = localStorage.getItem("isAuthenticated");
       if (authStatus === "true") {
         setIsAuthenticated(true);
+        document.cookie =
+          "isAuthenticated=true; path=/; max-age=604800; samesite=lax";
         refreshUser();
       }
       setIsLoading(false);
@@ -96,6 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem("username");
       localStorage.removeItem("avatar");
       localStorage.removeItem("userId");
+      document.cookie = "isAuthenticated=; path=/; max-age=0; samesite=lax";
     }
     router.replace("/login");
   };

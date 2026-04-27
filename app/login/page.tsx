@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Alert,
   Box,
@@ -31,6 +32,7 @@ type DecodedAccessToken = {
 };
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -72,11 +74,14 @@ export default function LoginPage() {
       setAccessToken(data.access);
       setRefreshToken(data.refresh);
       localStorage.setItem("isAuthenticated", "true");
+      document.cookie =
+        "isAuthenticated=true; path=/; max-age=604800; samesite=lax";
       localStorage.setItem("username", data.username);
       localStorage.setItem("avatar", data.avatar);
       localStorage.setItem("userId", decoded?.user_id || "");
 
-      window.location.replace("/");
+      const redirectPath = searchParams.get("next") || "/";
+      window.location.replace(redirectPath);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Login failed";
       setError(message);
