@@ -9,7 +9,13 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import { People, PersonAdd, Settings, Logout } from "@mui/icons-material";
+import {
+  People,
+  PersonAdd,
+  Settings,
+  Logout,
+  Rule,
+} from "@mui/icons-material";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -19,6 +25,7 @@ import { sidebarStyles } from "@/styles/Components/SidebarStyles";
 const menuItems = [
   { text: "Users", icon: People, path: "/users" },
   { text: "Pending Account", icon: PersonAdd, path: "/pending" },
+  { text: "Rules", icon: Rule, path: "/rules" },
   { text: "My Profile", icon: Settings, path: "/profile" },
 ];
 
