@@ -258,7 +258,10 @@ export default function Home() {
                 <FormControl sx={styles.filterControl}>
                   <Select
                     value={roleFilter}
-                    onChange={(e) => setRoleFilter(e.target.value)}
+                    onChange={(e) => {
+                      setRoleFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     displayEmpty
                     sx={styles.filterSelect}
                   >
@@ -271,7 +274,10 @@ export default function Home() {
                 <FormControl sx={styles.filterControlWide}>
                   <Select
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
+                    onChange={(e) => {
+                      setStatusFilter(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     displayEmpty
                     sx={styles.filterSelect}
                   >
